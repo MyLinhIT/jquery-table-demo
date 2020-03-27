@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Table</title>
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,700&display=swap" rel="stylesheet">
+    <!-- Css -->
+    <link rel="stylesheet" href="./assets/css/style.css">
+
+    <!-- Jquery -->
+    <script src="assets/lib/jquery/jquery-3.4.1.min.js"></script>
+
+    <!-- Boostrap -->
+    <link href="assets/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/lib/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet">
+    <script src="assets/lib/bootstrap/js/bootstrap.min.js"></script>
+
+</head>
+
+<body>
+    <div class="container-fluid custom-container">
+        <div class="row custom-row">
+            <div class="col">
+                <div class="table-jquery">
+                </div>
+            </div>
+            <div class="col">
+                <div class="row row-btn ">
+                    <button id="btn-add" type="button " class="btn btn-info ">Add</button>
+                    <button id="btn-edit" type="button " class="btn btn-warning ">Edit</button>
+                    <button id="btn-delete" type="button " class="btn btn-danger ">Delete</button>
+                    <button id="btn-save" type="button " class="btn btn-success ">Save</button>
+                </div>
+
+                <div class="form-group row ">
+                    <label for="input-id " class="col-sm-4 col-form-label ">Id</label>
+                    <div class="col-sm-8 ">
+                        <input name="id" type="number" readonly class="form-control " id="input-id" value=" ">
+                    </div>
+                </div>
+                <div class="form-group row ">
+                    <label for="input-name " class="col-sm-4 col-form-label ">Employee Name</label>
+                    <div class="col-sm-8 ">
+                        <input name="input-name" placeholder="Ex: Lisa Linh Nguyen" type="text" class="form-control" id="input-name">
+                        <span class="valid valid-name"></span>
+                    </div>
+                </div>
+                <div class="form-group row ">
+                    <label for="input-salary " class="col-sm-4 col-form-label ">Salary</label>
+                    <div class="col-sm-8 ">
+                        <input name="input-salary" placeholder="Ex: 20,000,000" type="text" class="form-control " id="input-salary">
+                        <span class="valid valid-salary"></span>
+                    </div>
+                </div>
+                <div class="form-group row ">
+                    <label for="input-age " class="col-sm-4 col-form-label ">Age</label>
+                    <div class="col-sm-8 ">
+                        <input name="input-age" placeholder="Ex: 22" type="number" class="form-control" id="input-age">
+                        <span class="valid valid-age"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    </div>
+    <script src="assets/js/datasource.js" type="text/javascript"></script>
+    <script src="assets/js/api.js" type="text/javascript"></script>
+    <script src="assets/js/pagination.js " type="text/javascript"></script>
+    <script src="assets/js/main.js" type="text/javascript"></script>
+    <script src="assets/js/resizable.js" type="text/javascript"></script>
+
+</body>
+
+</html>
