@@ -1,78 +1,76 @@
-PAGE_SIZE = 10
 let current_page = 1
-$(document).ready(function() {
-            let $div = $('.table-jquery')
-            $div.append(`<div class="loader"></div>`)
-            $div.append(`<table class="table table-bordered table-striped custom-table"><thead><tr></tr></thead><tbody></tbody></table>`)
-            $div.append(`<div class="wrap-pagination"></div>`)
-            let $table = $('table tbody')
-            let $thead = $("table thead tr")
+$(document).ready(function () {
+  let $div = $('.table-jquery')
+  $div.append(`<table class="table table-bordered table-striped custom-table"><thead><tr></tr></thead><tbody></tbody></table>`)
+  $div.append(`<div class="wrap-pagination"></div>`)
+  let $table = $('table tbody')
+  let $thead = $("table thead tr")
 
-            const checkButtonClick = {
-                create: { isClick: false, data: [] },
-                remove: { isClick: false, data: [] },
-                edit: { isClick: false, data: [] }
-            }
+  const checkButtonClick = {
+    create: [],
+    remove: [],
+    edit: []
+  }
 
-            const sortASCTable = {}
+  const sortASCTable = {}
 
-            $.fn.handleLoadingPagination = function() {
-                $(".wrap-pagination").empty()
-                $.fn.createTable()
-                $.fn.createPagination()
-            }
+  $.fn.handleLoadingPagination = function () {
+    $(".wrap-pagination").empty()
+    $.fn.createTable()
+    $.fn.createPagination()
+  }
 
-            handleSort = function({ id, type }) {
+  handleSort = function ({ id, type }) {
 
-                if (dataSource.data[0][id].match(/^\d+$/)) {
-                    if (type === "DESC") {
-                        dataSource.data.sort(function(a, b) {
-                            return b[id].replace(/,/g, '') - a[id].replace(/,/g, '')
-                        })
-                    } else {
-                        dataSource.data.sort(function(a, b) {
-                            return a[id].replace(/,/g, '') - b[id].replace(/,/g, '')
-                        })
-                    }
-                } else {
-                    if (type === "DESC") {
-                        dataSource.data.sort(function(a, b) {
-                            let nameA = a[id].toLowerCase(),
-                                nameB = b[id].toLowerCase();
-                            return nameB.localeCompare(nameA);
-                        })
-                    } else {
-                        dataSource.data.sort(function(a, b) {
-                            let nameA = a[id].toLowerCase(),
-                                nameB = b[id].toLowerCase()
-                            return nameA.localeCompare(nameB);
-                        })
-                    }
-                }
-                $.fn.handleLoadingPagination()
-            }
+    if (dataSource.data[0][id].match(/^\d+$/)) {
+      if (type === "DESC") {
+        dataSource.data.sort(function (a, b) {
+          return b[id].replace(/,/g, '') - a[id].replace(/,/g, '')
+        })
+      } else {
+        dataSource.data.sort(function (a, b) {
+          return a[id].replace(/,/g, '') - b[id].replace(/,/g, '')
+        })
+      }
+    } else {
+      if (type === "DESC") {
+        dataSource.data.sort(function (a, b) {
+          let nameA = a[id].toLowerCase(),
+            nameB = b[id].toLowerCase();
+          return nameB.localeCompare(nameA);
+        })
+      } else {
+        dataSource.data.sort(function (a, b) {
+          let nameA = a[id].toLowerCase(),
+            nameB = b[id].toLowerCase()
+          return nameA.localeCompare(nameB);
+        })
+      }
+    }
+    $.fn.handleLoadingPagination()
+  }
 
-            handleSortClickHeader = function({ id }) {
-                if (!!sortASCTable["id"]) {
-                    sortASCTable.id = false;
-                    handleSort({ id, type: "DESC" })
-                    $(`.icon-sort__asc-${id}`).css("opacity", .3)
-                    $(`.icon-sort__desc-${id}`).css("opacity", 1)
-                } else {
-                    sortASCTable.id = true;
-                    handleSort({ id, type: "ASC" })
-                    $(`.icon-sort__asc-${id}`).css("opacity", 1)
-                    $(`.icon-sort__desc-${id}`).css("opacity", .3)
-                }
-            }
+  handleSortClickHeader = function ({ id }) {
+    if (!!sortASCTable["id"]) {
+      sortASCTable.id = false;
+      handleSort({ id, type: "DESC" })
+      $(`.icon-sort__asc-${id}`).css("opacity", .3)
+      $(`.icon-sort__desc-${id}`).css("opacity", 1)
+    } else {
+      sortASCTable.id = true;
+      handleSort({ id, type: "ASC" })
+      $(`.icon-sort__asc-${id}`).css("opacity", 1)
+      $(`.icon-sort__desc-${id}`).css("opacity", .3)
+    }
+  }
 
-            $.fn.createHeader = function() {
-                    $thead.append(`<th scope="col"><input class="form-check-input" type="checkbox" value="" id="check-all"></input><label for="check-all"></label></th>`)
-                    if (!!dataSource["columns"]) {
-                        $.each(dataSource["columns"], function(index, column) {
-                                    const pattern = /\d$/g
-                                    const widthHeader = !!column["width"] ? (pattern.test(column["width"]) ? column["width"].concat("%") : column["width"]) : "auto"
-                                    $thead.append(`
+  $.fn.createHeader = function () {
+    $thead.append(`<th scope="col"><input class="form-check-input" type="checkbox" value="" id="check-all"></input><label for="check-all"></label></th>`)
+    if (!!dataSource["columns"]) {
+      $.each(dataSource["columns"], function (index, column) {
+        const pattern = /\d$/g
+        const widthHeader = !!column["width"] ? (pattern.test(column["width"]) ? column["width"].concat("%") : column["width"]) : "auto"
+        $thead.append(`
                   <th scope="col" class="${column['isResizable'] ? "resizable" : ""}" style=width:${widthHeader} onClick=${column['isSort'] ? `"handleSortClickHeader({id: '${column.id}'})"` : ''}><span>${column["label"]}</span>
                    ${column["isSort"] ? ` <span class="wrap-icon-sort">
                   <img src="assets/image/sort-up.png" class="icon-sort icon-sort__asc-${column.id}" onClick="handleSort({id: '${column.id}', type: 'ASC'})">
@@ -88,17 +86,34 @@ $(document).ready(function() {
       delete dataSource.data[0]["profile_image"]
     }
     $(".loader").css("display", "none");
+    $(".custom-row").css("display", "flex");
     $table.empty();
     let keys = Object.keys(dataSource.data[0]);
-    const offset = (current_page - 1) * PAGE_SIZE
-    const limit = PAGE_SIZE + offset
-    const dataFormat = dataSource.data.slice(offset, limit).map(function (item) {
+    const offset = (current_page - 1) * dataSource.pagination.pageSize
+    const limit = dataSource.pagination.pageSize + offset
+    let dataTable = []
+
+    if (current_page === 1 && checkButtonClick["create"].length > 0) {
+      dataTable = [...checkButtonClick["create"], ...dataSource.data]
+    } else {
+      dataTable = dataSource.data
+    }
+    const dataFormat = dataTable.slice(offset, limit).map(function (item) {
       item.employee_salary = item.employee_salary.trim().replace(/^0/, '').replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
       return item
     })
+    const idsEdit = checkButtonClick["edit"].map(function (item) {
+      return item.id
+    })
+
     $.each(dataFormat, function (index, item) {
-      let tr = `<tr id=${item.id}>`
-      tr += `<td><input class="form-check-input" type="checkbox" value="" id=${"check-row-" + item.id}></input><label for=${"check-row-" + item.id}></label></td>`
+      let tr = `<tr id=${item.id === "N/A" ? "" : item.id} ${item.id === "N/A" ? "add-row" : ""}
+      class="${checkButtonClick["remove"].includes(item.id) ? "pending-action" : idsEdit.includes(item.id) ? "row-selected" : ""}"
+       >`
+      tr += `<td><input class="form-check-input" type="checkbox" value="" id=${"check-row-" + item.id}`
+      tr += checkButtonClick["remove"].includes(item.id) || idsEdit.includes(item.id) ? " checked" : ""
+      tr += `></input><label for=${"check-row-" + item.id}></label></td>`
+
       $.each(keys, function (indexHeader, key) {
         tr += `<td class="${key + ' ' + item.id}">${item[key]}</td>`;
       });
@@ -116,6 +131,7 @@ $(document).ready(function() {
     $(".valid-name").text("")
     $(".valid-salary").text("")
     $(".loader").css("display", "block");
+    $(".custom-row").css("display", "none");
   }
 
   resetForm = function () {
@@ -127,43 +143,51 @@ $(document).ready(function() {
 
   validate = function () {
     let valName = $("#input-name").val().trim()
-    const pattern = /^([a-zA-Z'-,.\s]{1,100})$/g
+    const name_regex = /^([a-zA-Z'-,.\s]{1,100})$/g
 
     if (valName === "") {
       $(".valid-name").text("Employee name can't be empty.")
+      $("#input-name").focus()
       return false;
-    } else if (!pattern.test(valName)) {
+    } else if (!valName.match(name_regex)) {
       $(".valid-name").text("Please enter the right format.")
+      $("#input-name").focus()
       return false;
     }
     else {
       $(".valid-name").text("")
     }
 
+    let valSalary = $("#input-salary").val().replace(/,/g, '').replace(/[a-zA-Z]/g, '')
+    if (valSalary === "") {
+      $(".valid-salary").text("Employee salary can't be empty.")
+      $("#input-salary").focus()
+      return false;
+    } else if (valSalary < 0) {
+      $(".valid-salary").text("Employee salary must be 0 and above.")
+      $("#input-salary").focus()
+      return false;
+    } else {
+      $(".valid-salary").text("");
+    }
+
     let valAge = $("#input-age").val()
     if (valAge === "") {
       $(".valid-age").text("Employee age can't be empty.")
+      $("#input-age").focus()
       return false;
     } else if (valAge < 20) {
       $(".valid-age").text("Employee age must be 20 and above.")
+      $("#input-age").focus()
       return false;
     } else if (valAge > 65) {
       $(".valid-age").text("Employee age must be 60 and under.")
+      $("#input-age").focus()
       return false;
     } else {
       $(".valid-age").text("");
     }
 
-    let valSalary = $("#input-salary").val().replace(/,/g, '').replace(/[a-zA-Z]/g, '')
-    if (valSalary === "") {
-      $(".valid-salary").text("Employee salary can't be empty.")
-      return false;
-    } else if (valSalary < 0) {
-      $(".valid-salary").text("Employee salary must be 0 and above.")
-      return false;
-    } else {
-      $(".valid-salary").text("");
-    }
     return true
   }
 
@@ -191,8 +215,7 @@ $(document).ready(function() {
   }
 
   loadData = function () {
-    $.fn.removeTable()
-    if (checkButtonClick["create"].data.length === 0 && checkButtonClick["remove"].data && checkButtonClick["edit"].data) {
+    if (checkButtonClick["create"].length === 0 && checkButtonClick["remove"].length === 0 && checkButtonClick["edit"].length === 0) {
       $.fn.get()
       return;
     }
@@ -227,7 +250,6 @@ $(document).ready(function() {
   // handle event button click
   $("#btn-add").click(function () {
     if (!!validate()) {
-      checkButtonClick["create"].isClick = true;
       let employee_name = $("#input-name").val()
       let employee_age = $("#input-age").val()
       let employee_salary = $("#input-salary").val()
@@ -235,18 +257,17 @@ $(document).ready(function() {
 
       let tr = "<tr id='add-row'>"
       tr += `<td><input class="form-check-input" type="checkbox" value=""><label></label></input></td>`
-      tr += "<td></td><td>" + employee_name + "</td><td>" + employee_salary + "</td><td>" + employee_age + "</td>";
+      tr += "<td>N/A</td><td>" + employee_name + "</td><td>" + employee_salary + "</td><td>" + employee_age + "</td>";
       tr += "</tr>"
       $table.prepend(tr)
 
-      checkButtonClick["create"].data.push({ employee_name, employee_age, employee_salary: employee_salary.replace(/,/g, '').replace(/[a-zA-Z]/g, '') })
+      checkButtonClick["create"].push({ id: "N/A", employee_name, employee_age, employee_salary: employee_salary.replace(/,/g, '').replace(/[a-zA-Z]/g, '') })
       resetForm()
     }
   })
 
   $("#btn-edit").click(function (e) {
     if (!!validate()) {
-      checkButtonClick["edit"].isClick = true;
       let id = $("#input-id").val()
       let employee_name = $("#input-name").val()
       let employee_age = $("#input-age").val()
@@ -257,8 +278,16 @@ $(document).ready(function() {
       $(`.employee_age.${id}`).text(employee_age)
       $(`.employee_salary.${id}`).text(employee_salary)
 
-      checkButtonClick["edit"].data.push({ id, employee_name, employee_age, employee_salary: employee_salary.replace(/,/g, '').replace(/[a-zA-Z]/g, '') })
-      resetForm()
+      const record = { id, employee_name, employee_age, employee_salary: employee_salary.replace(/,/g, '').replace(/[a-zA-Z]/g, '') }
+      dataSource.data = dataSource.data.map(function (item) {
+        if (item.id === id) {
+          return record
+        }
+        else {
+          return item
+        }
+      })
+      checkButtonClick["edit"].push(record)
     }
   })
 
@@ -272,7 +301,7 @@ $(document).ready(function() {
       ids.push($(this).closest('tr').attr('id'));
     })
 
-    checkButtonClick["edit"].data = checkButtonClick["edit"].data.filter(function (item) {
+    checkButtonClick["edit"] = checkButtonClick["edit"].filter(function (item) {
       if (!ids.includes(item.id)) {
         return item
       }
@@ -280,13 +309,13 @@ $(document).ready(function() {
 
     dataSource.data.map(function (item) {
       if (ids.includes(item.id)) {
-        checkButtonClick["remove"].data.push(item.id);
+        checkButtonClick["remove"].push(item.id);
       }
     });
   })
 
   handleSaveApi = function (type, fn) {
-    $.fn.sendMultliple(checkButtonClick[type].data, fn)
+    $.fn.sendMultliple(checkButtonClick[type], fn)
       .then(function () {
         alert(`${type.charAt(0).toUpperCase() + type.slice(1)} successfully.`)
       })
@@ -294,23 +323,23 @@ $(document).ready(function() {
         alert("An error occurred, please try again.")
       })
       .finally(function () {
-        checkButtonClick[type].data = []
-        $.fn.removeTable()
+        checkButtonClick[type] = []
         loadData()
       })
   }
 
   $("#btn-save").click(function () {
+    $.fn.removeTable()
     loadData()
-    if (checkButtonClick["remove"].data.length > 0) {
+    if (checkButtonClick["remove"].length > 0) {
       handleSaveApi("remove", $.fn.removeRecord)
     }
 
-    if (checkButtonClick["create"].data.length > 0) {
+    if (checkButtonClick["create"].length > 0) {
       handleSaveApi("create", $.fn.create)
     }
 
-    if (checkButtonClick["edit"].data.length > 0) {
+    if (checkButtonClick["edit"].length > 0) {
       handleSaveApi("edit", $.fn.edit)
     }
   })
@@ -330,9 +359,13 @@ $(document).ready(function() {
     $("table thead").find("tr th input[type=checkbox]").prop("checked", false);
 
     // Check a checkbox is checked or not
-    if (!$tgt.is(':checkbox')) {
+    if (!$tgt.is('label') || !$tgt.is(':checkbox')) {
       isNotCheck = $(this).find("td input[type=checkbox]").is(":checked");
       $(this).find("td input[type=checkbox]").prop("checked", !isNotCheck);
+
+    }
+    if ($tgt.is('label')) {
+      $(this).toggleClass("row-selected")
     }
 
     // Check all checkbox are checked or not

@@ -28,5 +28,8 @@ dataSource = {
         }
     ],
     data: [],
-    api: 'http://5b0f708f3c5c110014145cc9.mockapi.io/api/nexacro-demo'
+    pagination: { 
+        pageSize: 10
+    },
+    api: 'https://5b0f708f3c5c110014145cc9.mockapi.io/api/nexacro-demo'
 }

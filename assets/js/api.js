@@ -1,13 +1,13 @@
 $(document).ready(function() {
 
     $.fn.get = function() {
-        $.fn.removeTable()
         $.ajax({
             url: dataSource.api,
             method: "GET"
         }).done(function(data) {
             dataSource.data = data
             current_page = 1
+            $.fn.removeTable()
             $.fn.createHeader(data)
             $.fn.createTable()
             $.fn.createPagination()

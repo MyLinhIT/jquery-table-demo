@@ -1,36 +1,36 @@
-$(document).ready(function() {
-    handleChangePagination = function(curentPage) {
+$(document).ready(function () {
+    handleChangePagination = function (curentPage) {
         current_page = curentPage
         $.fn.handleLoadingPagination()
     }
 
-    handlePreviousPagination = function() {
+    handlePreviousPagination = function () {
         if (current_page === 1)
             return;
         current_page = current_page - 1
         $.fn.handleLoadingPagination()
     }
 
-    handleNextPagination = function() {
-        if (current_page >= Math.ceil(dataSource.data.length / PAGE_SIZE))
+    handleNextPagination = function () {
+        if (current_page >= Math.ceil(dataSource.data.length / dataSource.pagination.pageSize))
             return;
         current_page += 1
         $.fn.handleLoadingPagination()
     }
 
-    handleFirstPagination = function() {
+    handleFirstPagination = function () {
         current_page = 1
         $.fn.handleLoadingPagination()
     }
 
-    handleLastPagination = function() {
-        current_page = Math.ceil(dataSource.data.length / PAGE_SIZE)
+    handleLastPagination = function () {
+        current_page = Math.ceil(dataSource.data.length / dataSource.pagination.pageSize)
         $.fn.handleLoadingPagination()
     }
 
     // Ref: https://www.yogihosting.com/jquery-pagination/
-    $.fn.createPagination = function() {
-        let totalPage = Math.ceil(dataSource.data.length / PAGE_SIZE)
+    $.fn.createPagination = function () {
+        let totalPage = Math.ceil(dataSource.data.length / dataSource.pagination.pageSize)
         let span = ''
         span += `<span class="item-pagination ${current_page === 1 ? "disable" : ""}"" onClick="handleFirstPagination()">&#10092;&#10092;</span>`
         span += `<span class="item-pagination ${current_page === 1 ? "disable" : ""}" onClick="handlePreviousPagination()">&#10092;</span>`
