@@ -173,7 +173,7 @@ $(document).ready(function () {
       $(".valid-salary").text("");
     }
 
-    let valAge = $("#input-age").val()
+    let valAge = $("#input-age").val().replace(/e/g, '')
     if (valAge === "") {
       $(".valid-age").text("Employee age can't be empty.")
       $("#input-age").focus()
@@ -204,9 +204,18 @@ $(document).ready(function () {
     }
   });
 
+  $('#input-age').keypress(function (e) {
+    // 0 for null values
+    // 8 for backspace 
+    // 48-57 for 0-9 numbers
+    if (e.which != 8 && e.which != 0 && e.which < 48 || e.which > 57) {
+      e.preventDefault();
+    }
+  });
+
   //Format salary
   $("#input-salary").on('input', function () {
-    $(this).val($(this).val().replace(/,/g, '').trim().replace(/^0/, '').replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'))
+    $(this).val($(this).val().replace(/,[a-zA-Z]$/g, '').trim().replace(/^0/, '').replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'))
   })
 
   bindDataForm = function (data) {
@@ -250,12 +259,26 @@ $(document).ready(function () {
     return name
   }
 
+  // when the table has a click row
+  bindData = function () {
+    if ($("table tbody tr").find("input[type=checkbox]:checked").length === 1) {
+      const tr = $("table tbody tr input[type=checkbox]:checked").closest("tr")
+      let count = 0;
+      let values = []
+      $(tr).find("td").each(function () {
+        values[count] = $(this).text();
+        count++;
+      });
+      bindDataForm(values);
+    }
+  }
+
   // handle event button click
   $("#btn-add").click(function () {
     if (!!validate()) {
       let employee_name = $("#input-name").val()
       let employee_age = $("#input-age").val()
-      let employee_salary = $("#input-salary").val()
+      let employee_salary = $("#input-salary").val().replace(/[a-zA-Z]$/g, '')
       employee_name = formatEmployee(employee_name);
 
       let tr = "<tr id='add-row'>"
@@ -267,13 +290,14 @@ $(document).ready(function () {
         id: "N/A",
         employee_name,
         employee_age,
-        employee_salary: employee_salary.replace(/,/g, '').replace(/[a-zA-Z]/g, '')
+        employee_salary: employee_salary.replace(/,/g, '')
       }
       checkButtonClick["create"].push(data)
       if (current_page === 1) {
         dataSource.data = [data, ...dataSource.data]
       }
       resetForm()
+      bindData()
     }
   })
 
@@ -287,9 +311,9 @@ $(document).ready(function () {
 
       $(`.employee_name.${id}`).text(employee_name)
       $(`.employee_age.${id}`).text(employee_age)
-      $(`.employee_salary.${id}`).text(employee_salary)
+      $(`.employee_salary.${id}`).text(employee_salary.replace(/[a-zA-Z]$/g, ''))
 
-      const record = { id, employee_name, employee_age, employee_salary: employee_salary.replace(/,/g, '').replace(/[a-zA-Z]/g, '') }
+      const record = { id, employee_name, employee_age, employee_salary: employee_salary.replace(/,/g, '').replace(/[a-zA-Z]$/g, '') }
       dataSource.data = dataSource.data.map(function (item) {
         if (item.id === id) {
           return record
@@ -389,18 +413,7 @@ $(document).ready(function () {
     } else {
       bindDataForm(values);
     }
-
-    //binding data
-    if ($("table tbody tr").find("input[type=checkbox]:checked").length === 1) {
-      const tr = $("table tbody tr input[type=checkbox]:checked").closest("tr")
-      let count = 0;
-      let values =[]
-      $(tr).find("td").each(function () {
-        values[count] = $(this).text();
-        count++;
-      });
-      bindDataForm(values);
-    }
+    bindData()
 
   });
 
