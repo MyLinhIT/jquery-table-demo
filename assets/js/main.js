@@ -215,7 +215,7 @@ $(document).ready(function () {
 
   //Format salary
   $("#input-salary").on('input', function () {
-    $(this).val($(this).val().replace(/,[a-zA-Z]$/g, '').trim().replace(/^0/, '').replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'))
+    $(this).val($(this).val().replace(/,/g, '').trim().replace(/^0/, '').replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'))
   })
 
   bindDataForm = function (data) {
@@ -260,11 +260,11 @@ $(document).ready(function () {
   }
 
   // when the table has a click row
-  bindData = function () {
+  bindData = function() {
     if ($("table tbody tr").find("input[type=checkbox]:checked").length === 1) {
       const tr = $("table tbody tr input[type=checkbox]:checked").closest("tr")
       let count = 0;
-      let values = []
+      let values =[]
       $(tr).find("td").each(function () {
         values[count] = $(this).text();
         count++;
