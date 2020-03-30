@@ -294,9 +294,7 @@ $(document).ready(function () {
         employee_age
       }
       checkButtonClick["create"].push(data)
-      if (current_page === 1) {
-        dataSource.data = [data, ...dataSource.data]
-      }
+      dataSource.data = [data, ...dataSource.data]
       resetForm()
       bindData()
     }
