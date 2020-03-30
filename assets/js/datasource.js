@@ -22,7 +22,7 @@ dataSource = {
         {
             id: 'employee_age',
             label: "Age",
-            isSort: false,
+            isSort: true,
             isResizable: true,
             width: "10"
         }

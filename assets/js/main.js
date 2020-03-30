@@ -24,7 +24,6 @@ $(document).ready(function () {
   }
 
   handleSort = function ({ id, type }) {
-
     if (dataSource.data[0][id].replace(/,/g, '').match(/^\d+$/)) {
       if (type === "DESC") {
         dataSource.data.sort(function (a, b) {
@@ -117,10 +116,6 @@ $(document).ready(function () {
     }
     $("table tbody").find("tr td input[type=checkbox]").prop("checked", isCheckAll);
 
-    checkButtonClick["edit"].map(function (item) {
-      $("table tbody").find(`tr#${item.id}`).selectRow()
-      $("table tbody").find(`tr#${item.id} td input[type=checkbox]`).prop("checked", true);
-    })
     checkButtonClick["remove"].map(function (id) {
       $("table tbody").find(`tr#${id}`).addClass("pending-action")
       $("table tbody").find(`tr#${id} td input[type=checkbox]`).prop("checked", true);
@@ -128,6 +123,10 @@ $(document).ready(function () {
    clickRow.map(function (id) {
       $("table tbody").find(`tr#${id}`).selectRow()
       $("table tbody").find(`tr#${id} td input[type=checkbox]`).prop("checked", true);
+    })
+    checkButtonClick["create"].map(function (id) {
+      $("table tbody").find(`tr#${id}`).addClass("pending-action")
+      $("table tbody").find(`tr#${id} td input[type=checkbox]`).prop("checked", false);
     })
   }
 
@@ -414,6 +413,7 @@ $(document).ready(function () {
     let $tgt = $(e.target);
     let isNotCheck = false;
     $("table thead").find("tr th input[type=checkbox]").prop("checked", false);
+    clickRow = []
 
     // Check a checkbox is checked or not
     if (!$tgt.is('label') || !$tgt.is(':checkbox')) {
@@ -436,15 +436,6 @@ $(document).ready(function () {
         clickRow.push(id)
       }
     })
-
-    checkButtonClick["edit"].map(function (item) {
-      $("table tbody").find(`tr#${item.id}`).selectRow()
-      $("table tbody").find(`tr#${item.id} td input[type=checkbox]`).prop("checked", true);
-    })
-    checkButtonClick["remove"].map(function (id) {
-      $("table tbody").find(`tr#${id}`).addClass("pending-action")
-      $("table tbody").find(`tr#${id} td input[type=checkbox]`).prop("checked", true);
-    })
     if (isNotCheck) {
       resetForm()
     } else {
@@ -459,6 +450,7 @@ $(document).ready(function () {
     if (isCheckAll) {
       $("table tbody tr").selectRow()
     } else {
+      clickRow = []
       $("table tbody tr").removeSelectRow()
     }
     $("table tbody").find("tr td input[type=checkbox]").prop("checked", isCheckAll);
@@ -469,6 +461,10 @@ $(document).ready(function () {
     checkButtonClick["remove"].map(function (id) {
       $("table tbody").find(`tr#${id}`).addClass("pending-action")
       $("table tbody").find(`tr#${id} td input[type=checkbox]`).prop("checked", true);
+    })
+    checkButtonClick["create"].map(function (id) {
+      $("table tbody").find(`tr#${id}`).addClass("pending-action")
+      $("table tbody").find(`tr#${id} td input[type=checkbox]`).prop("checked", false);
     })
   })
 
