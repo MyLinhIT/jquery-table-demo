@@ -124,10 +124,6 @@ $(document).ready(function () {
       $("table tbody").find(`tr#${id}`).selectRow()
       $("table tbody").find(`tr#${id} td input[type=checkbox]`).prop("checked", true);
     })
-    checkButtonClick["create"].map(function (id) {
-      $("table tbody").find(`tr#${id}`).addClass("pending-action")
-      $("table tbody").find(`tr#${id} td input[type=checkbox]`).prop("checked", false);
-    })
   }
 
   $.fn.removeTable = function () {
@@ -287,7 +283,7 @@ $(document).ready(function () {
       employee_name = formatEmployee(employee_name);
 
       let tr = "<tr id='add-row'>"
-      tr += `<td><input class="form-check-input" type="checkbox" value=""><label></label></input></td>`
+      tr += `<td></td>`
       tr += "<td>N/A</td><td>" + employee_name + "</td><td>" + employee_salary + "</td><td>" + employee_age + "</td>";
       tr += "</tr>"
       $table.prepend(tr)
@@ -461,10 +457,6 @@ $(document).ready(function () {
     checkButtonClick["remove"].map(function (id) {
       $("table tbody").find(`tr#${id}`).addClass("pending-action")
       $("table tbody").find(`tr#${id} td input[type=checkbox]`).prop("checked", true);
-    })
-    checkButtonClick["create"].map(function (id) {
-      $("table tbody").find(`tr#${id}`).addClass("pending-action")
-      $("table tbody").find(`tr#${id} td input[type=checkbox]`).prop("checked", false);
     })
   })
 
