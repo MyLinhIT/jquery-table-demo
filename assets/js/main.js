@@ -13,7 +13,9 @@ $(document).ready(function () {
     edit: []
   }
 
-  const sortASCTable = {}
+  let sortASCTable = {}
+
+  let clickRow = []
 
   $.fn.handleLoadingPagination = function () {
     $(".wrap-pagination").empty()
@@ -97,18 +99,10 @@ $(document).ready(function () {
       item.employee_salary = item.employee_salary.trim().replace(/^0/, '').replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
       return item
     })
-    const idsEdit = checkButtonClick["edit"].map(function (item) {
-      return item.id
-    })
 
     $.each(dataFormat, function (index, item) {
-      let tr = `<tr id=${item.id === "N/A" ? "" : item.id} ${item.id === "N/A" ? "add-row" : ""}
-      class="${checkButtonClick["remove"].includes(item.id) ? "pending-action" : idsEdit.includes(item.id) ? "row-selected" : ""}"
-       >`
-      tr += `<td><input class="form-check-input" type="checkbox" value="" id=${"check-row-" + item.id}`
-      tr += checkButtonClick["remove"].includes(item.id) || idsEdit.includes(item.id) ? " checked" : ""
-      tr += `></input><label for=${"check-row-" + item.id}></label></td>`
-
+      let tr = `<tr id=${item.id === "N/A" ? "" : item.id} ${item.id === "N/A" ? "add-row" : ""}>`
+      tr += `<td><input class="form-check-input" type="checkbox" value="" id="${"check-row-" + item.id}"></input><label for=${"check-row-" + item.id}></label></td>`
       $.each(keys, function (indexHeader, key) {
         tr += `<td class="${key + ' ' + item.id}">${item[key]}</td>`;
       });
@@ -123,6 +117,18 @@ $(document).ready(function () {
     }
     $("table tbody").find("tr td input[type=checkbox]").prop("checked", isCheckAll);
 
+    checkButtonClick["edit"].map(function (item) {
+      $("table tbody").find(`tr#${item.id}`).selectRow()
+      $("table tbody").find(`tr#${item.id} td input[type=checkbox]`).prop("checked", true);
+    })
+    checkButtonClick["remove"].map(function (id) {
+      $("table tbody").find(`tr#${id}`).addClass("pending-action")
+      $("table tbody").find(`tr#${id} td input[type=checkbox]`).prop("checked", true);
+    })
+   clickRow.map(function (id) {
+      $("table tbody").find(`tr#${id}`).selectRow()
+      $("table tbody").find(`tr#${id} td input[type=checkbox]`).prop("checked", true);
+    })
   }
 
   $.fn.removeTable = function () {
@@ -260,11 +266,11 @@ $(document).ready(function () {
   }
 
   // when the table has a click row
-  bindData = function() {
+  bindData = function () {
     if ($("table tbody tr").find("input[type=checkbox]:checked").length === 1) {
       const tr = $("table tbody tr input[type=checkbox]:checked").closest("tr")
       let count = 0;
-      let values =[]
+      let values = []
       $(tr).find("td").each(function () {
         values[count] = $(this).text();
         count++;
@@ -289,8 +295,8 @@ $(document).ready(function () {
       const data = {
         id: "N/A",
         employee_name,
-        employee_age,
-        employee_salary: employee_salary.replace(/,/g, '')
+        employee_salary: employee_salary.replace(/,/g, ''),
+        employee_age
       }
       checkButtonClick["create"].push(data)
       if (current_page === 1) {
@@ -313,7 +319,7 @@ $(document).ready(function () {
       $(`.employee_age.${id}`).text(employee_age)
       $(`.employee_salary.${id}`).text(employee_salary.replace(/[a-zA-Z]$/g, ''))
 
-      const record = { id, employee_name, employee_age, employee_salary: employee_salary.replace(/,/g, '').replace(/[a-zA-Z]$/g, '') }
+      const record = { id, employee_name, employee_salary: employee_salary.replace(/,/g, '').replace(/[a-zA-Z]$/g, ''), employee_age }
       dataSource.data = dataSource.data.map(function (item) {
         if (item.id === id) {
           return record
@@ -322,7 +328,22 @@ $(document).ready(function () {
           return item
         }
       })
-      checkButtonClick["edit"].push(record)
+      if (checkButtonClick["edit"].length === 0) {
+        checkButtonClick["edit"].push(record)
+      }
+      let checkRecord = false
+
+      checkButtonClick["edit"] = checkButtonClick["edit"].map(function (item) {
+        if (item.id === id) {
+          checkRecord = true
+          return record
+        } else {
+          return item
+        }
+      })
+      if (!checkRecord) {
+        checkButtonClick["edit"].push(record)
+      }
     }
   })
 
@@ -365,6 +386,7 @@ $(document).ready(function () {
 
   $("#btn-save").click(function () {
     $.fn.removeTable()
+    clickRow = []
     loadData()
     if (checkButtonClick["remove"].length > 0) {
       handleSaveApi("remove", $.fn.removeRecord)
@@ -397,7 +419,6 @@ $(document).ready(function () {
     if (!$tgt.is('label') || !$tgt.is(':checkbox')) {
       isNotCheck = $(this).find("td input[type=checkbox]").is(":checked");
       $(this).find("td input[type=checkbox]").prop("checked", !isNotCheck);
-
     }
     if ($tgt.is('label')) {
       $(this).toggleClass("row-selected")
@@ -408,6 +429,22 @@ $(document).ready(function () {
       $("table thead").find("tr th input[type=checkbox]").prop("checked", true);
     }
 
+    const trChecked = $("table tbody tr").find("input[type=checkbox]:checked")
+    $.each(trChecked, function (index, item) {
+      const id = $(item.closest("tr")).attr('id')
+      if(!clickRow.includes(id)) {
+        clickRow.push(id)
+      }
+    })
+
+    checkButtonClick["edit"].map(function (item) {
+      $("table tbody").find(`tr#${item.id}`).selectRow()
+      $("table tbody").find(`tr#${item.id} td input[type=checkbox]`).prop("checked", true);
+    })
+    checkButtonClick["remove"].map(function (id) {
+      $("table tbody").find(`tr#${id}`).addClass("pending-action")
+      $("table tbody").find(`tr#${id} td input[type=checkbox]`).prop("checked", true);
+    })
     if (isNotCheck) {
       resetForm()
     } else {
@@ -425,6 +462,14 @@ $(document).ready(function () {
       $("table tbody tr").removeSelectRow()
     }
     $("table tbody").find("tr td input[type=checkbox]").prop("checked", isCheckAll);
+    checkButtonClick["edit"].map(function (item) {
+      $("table tbody").find(`tr#${item.id}`).selectRow()
+      $("table tbody").find(`tr#${item.id} td input[type=checkbox]`).prop("checked", true);
+    })
+    checkButtonClick["remove"].map(function (id) {
+      $("table tbody").find(`tr#${id}`).addClass("pending-action")
+      $("table tbody").find(`tr#${id} td input[type=checkbox]`).prop("checked", true);
+    })
   })
 
 })
