@@ -1,4 +1,5 @@
 let current_page = 1
+let TOTAL_PAGE = 0
 $(document).ready(function () {
   let $div = $('.table-jquery')
   $div.append(`<table class="table table-bordered table-striped custom-table"><thead><tr></tr></thead><tbody></tbody></table>`)
@@ -91,14 +92,8 @@ $(document).ready(function () {
     let keys = Object.keys(dataSource.data[0]);
     const offset = (current_page - 1) * dataSource.pagination.pageSize
     const limit = dataSource.pagination.pageSize + offset
-    let dataTable = []
 
-    if (current_page === 1 && checkButtonClick["create"].length > 0) {
-      dataTable = [...checkButtonClick["create"], ...dataSource.data]
-    } else {
-      dataTable = dataSource.data
-    }
-    const dataFormat = dataTable.slice(offset, limit).map(function (item) {
+    const dataFormat = dataSource.data.slice(offset, limit).map(function (item) {
       item.employee_salary = item.employee_salary.trim().replace(/^0/, '').replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
       return item
     })
@@ -120,6 +115,13 @@ $(document).ready(function () {
       tr += "</tr>"
       $table.append(tr)
     })
+    const isCheckAll = $("table thead").find("th input[type=checkbox]").is(':checked');
+    if (isCheckAll) {
+      $("table tbody tr").selectRow()
+    } else {
+      $("table tbody tr").removeSelectRow()
+    }
+    $("table tbody").find("tr td input[type=checkbox]").prop("checked", isCheckAll);
 
   }
 
@@ -223,6 +225,7 @@ $(document).ready(function () {
 
   // fetch data
   $.fn.get();
+
   $.fn.selectRow = function () {
     this.addClass("row-selected")
   }
@@ -260,8 +263,16 @@ $(document).ready(function () {
       tr += "<td>N/A</td><td>" + employee_name + "</td><td>" + employee_salary + "</td><td>" + employee_age + "</td>";
       tr += "</tr>"
       $table.prepend(tr)
-
-      checkButtonClick["create"].push({ id: "N/A", employee_name, employee_age, employee_salary: employee_salary.replace(/,/g, '').replace(/[a-zA-Z]/g, '') })
+      const data = {
+        id: "N/A",
+        employee_name,
+        employee_age,
+        employee_salary: employee_salary.replace(/,/g, '').replace(/[a-zA-Z]/g, '')
+      }
+      checkButtonClick["create"].push(data)
+      if (current_page === 1) {
+        dataSource.data = [data, ...dataSource.data]
+      }
       resetForm()
     }
   })
@@ -378,6 +389,19 @@ $(document).ready(function () {
     } else {
       bindDataForm(values);
     }
+
+    //binding data
+    if ($("table tbody tr").find("input[type=checkbox]:checked").length === 1) {
+      const tr = $("table tbody tr input[type=checkbox]:checked").closest("tr")
+      let count = 0;
+      let values =[]
+      $(tr).find("td").each(function () {
+        values[count] = $(this).text();
+        count++;
+      });
+      bindDataForm(values);
+    }
+
   });
 
   $("table thead").on("click", "tr", function () {

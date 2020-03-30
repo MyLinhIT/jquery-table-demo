@@ -7,6 +7,7 @@ $(document).ready(function() {
         }).done(function(data) {
             dataSource.data = data
             current_page = 1
+            TOTAL_PAGE = data.length
             $.fn.removeTable()
             $.fn.createHeader(data)
             $.fn.createTable()
