@@ -25,7 +25,7 @@ $(document).ready(function () {
 
   handleSort = function ({ id, type }) {
 
-    if (dataSource.data[0][id].match(/^\d+$/)) {
+    if (dataSource.data[0][id].replace(/,/g, '').match(/^\d+$/)) {
       if (type === "DESC") {
         dataSource.data.sort(function (a, b) {
           return b[id].replace(/,/g, '') - a[id].replace(/,/g, '')
