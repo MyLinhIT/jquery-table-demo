@@ -111,19 +111,18 @@
       })
       const isCheckAll = $("table thead").find("th input[type=checkbox]").is(':checked');
       if (isCheckAll) {
-        $("table tbody tr").selectRow()
+        $("table tbody tr").addSelectCheckbox()
       } else {
-        $("table tbody tr").removeSelectRow()
+        $("table tbody tr").removeSelectCheckbox()
       }
       $("table tbody").find("tr td input[type=checkbox]").prop("checked", isCheckAll);
 
       checkButtonClick["remove"].map(function (id) {
-        $("table tbody").find(`tr#${id}`).addClass("pending-action")
+        $("table tbody").find(`tr#${id}`).addClass("pending-delete")
         $("table tbody").find(`tr#${id} td input[type=checkbox]`).prop("checked", true);
       })
-      clickRow.map(function (id) {
-        $("table tbody").find(`tr#${id}`).selectRow()
-        $("table tbody").find(`tr#${id} td input[type=checkbox]`).prop("checked", true);
+      checkButtonClick["edit"].map(function (item) {
+        $("table tbody").find(`tr#${item.id}`).addClass("pending-edit")
       })
     }
 
@@ -245,6 +244,15 @@
       this.removeClass("row-selected")
     }
 
+    $.fn.addSelectCheckbox = function () {
+      this.addClass("row-selected-all")
+      resetForm()
+    }
+
+    $.fn.removeSelectCheckbox = function () {
+      this.removeClass("row-selected-all")
+    }
+
     $.fn.sendMultliple = function (data, func) {
       const promies = $.map(data, function (item) {
         return func(item)
@@ -263,8 +271,8 @@
 
     // when the table has a click row
     bindData = function () {
-      if ($("table tbody tr").find("input[type=checkbox]:checked").length === 1) {
-        const tr = $("table tbody tr input[type=checkbox]:checked").closest("tr")
+      if ($(".row-selected").length === 1) {
+        const tr = $(".row-selected").closest("tr")
         let count = 0;
         let values = []
         $(tr).find("td").each(function () {
@@ -314,7 +322,7 @@
 
       if (current_page - 3 > 1) {
         span += `<span class="item-pagination ${current_page === 1 ? "active" : ""}" onClick="handleChangePagination(${1})">${1}</span>`
-        span += `<span class="item-more" style="display: ${current_page === 1 ? "none" : "inline-block"}" onClick="handlePreviousPagination()">•••</span>`
+        span += `<span class="item-more" style="display: ${current_page === 1 || totalPage < 6 ? "none" : "inline-block"}" onClick="handlePreviousPagination()">•••</span>`
       }
 
       for (let i = current_page - 3; i <= current_page; i++) {
@@ -330,12 +338,12 @@
       }
 
       if (current_page + 3 < totalPage) {
-        span += `<span class="item-more" style="display: ${current_page === totalPage ? "none" : "inline-block"}" onClick="handleNextPagination()">•••</span>`
+        span += `<span class="item-more" style="display: ${current_page === totalPage || totalPage < 6 ? "none" : "inline-block"}" onClick="handleNextPagination()">•••</span>`
         span += `<span class="item-pagination ${current_page === totalPage ? "active" : ""}" onClick="handleChangePagination(${totalPage})">${totalPage}</span>`
       }
 
-      span += `<span class="item-pagination ${current_page >= totalPage ? "disable" : ""}" onClick="handleNextPagination()">&#10093;</span>`
-      span += `<span class="item-pagination ${current_page >= totalPage ? "disable" : ""}" onClick="handleLastPagination()">&#10093;&#10093;</span>`
+      span += `<span class="item-pagination ${current_page === totalPage ? "disable" : ""}" onClick="handleNextPagination()">&#10093;</span>`
+      span += `<span class="item-pagination ${current_page === totalPage ? "disable" : ""}" onClick="handleLastPagination()">&#10093;&#10093;</span>`
       $(".wrap-pagination").append(span)
     }
 
@@ -368,6 +376,7 @@
     $("#btn-edit").click(function (e) {
       if (!!validate()) {
         let id = $("#input-id").val()
+        $(`table tbody tr#${id}`).addClass("pending-edit")
         let employee_name = $("#input-name").val()
         let employee_age = $("#input-age").val()
         let employee_salary = $("#input-salary").val()
@@ -405,10 +414,9 @@
       }
     })
 
-    $("#btn-delete").click(function () {
-      resetForm()
+    $("#btn-delete").click(function (e) {
       const tds = $("table tbody tr").find("input[type=checkbox]:checked")
-      tds.parent().parent().addClass('pending-action')
+      tds.parent().parent().addClass('pending-delete')
       let ids = []
 
       $.each(tds, function () {
@@ -461,64 +469,61 @@
 
     // Handle event table click
     $("table tbody").on("click", "tr", function (e) {
+
+      // Check all checkbox are checked or not
+      if (($("table tbody tr").find("input[type=checkbox]").length > 1 === 1 && current_page === 1) || $("table tbody tr").find("input[type=checkbox]").length > 1 && $("table tbody tr").find("input[type=checkbox]").length === $("table tbody tr").find("input[type=checkbox]:checked").length) {
+        $("table thead").find("tr th input[type=checkbox]").prop("checked", true);
+        $.each($("table tbody tr"), function () {
+          $(this).addSelectCheckbox()
+        })
+      } else {
+        $("table thead").find("tr th input[type=checkbox]").prop("checked", false);
+        $.each($("table tbody tr"), function () {
+          $(this).removeSelectCheckbox()
+        })
+      }
+
       let values = []
       let count = 0;
-      $(this).toggleClass("row-selected")
+      $.each($("table tbody tr"), function (item) {
+        $(this).removeSelectRow()
+      })
+
+      $(this).selectRow("row-selected")
+
       $(this).find("td").each(function () {
         values[count] = $(this).text();
         count++;
       });
 
       let $tgt = $(e.target);
-      let isNotCheck = false;
-      $("table thead").find("tr th input[type=checkbox]").prop("checked", false);
-      clickRow = []
 
-      // Check a checkbox is checked or not
-      if (!$tgt.is('label') || !$tgt.is(':checkbox')) {
-        isNotCheck = $(this).find("td input[type=checkbox]").is(":checked");
-        $(this).find("td input[type=checkbox]").prop("checked", !isNotCheck);
-      }
-      if ($tgt.is('label')) {
-        $(this).toggleClass("row-selected")
-      }
+      const tds = $("table tbody tr").find("input[type=checkbox]:checked")
+      tds.parent().parent().addSelectCheckbox()
 
-      // Check all checkbox are checked or not
-      if ($("table tbody tr").find("input[type=checkbox]").length === $("table tbody tr").find("input[type=checkbox]:checked").length) {
-        $("table thead").find("tr th input[type=checkbox]").prop("checked", true);
-      }
-
-      const trChecked = $("table tbody tr").find("input[type=checkbox]:checked")
-      $.each(trChecked, function (index, item) {
-        const id = $(item.closest("tr")).attr('id')
-        if (!clickRow.includes(id)) {
-          clickRow.push(id)
-        }
-      })
-      if (isNotCheck) {
+      if ($tgt.is('label') || $tgt.is(':checkbox')) {
         resetForm()
-      } else {
+      }
+      else if (!$tgt.is('label') || !$tgt.is(':checkbox')) {
         bindDataForm(values);
       }
-      bindData()
 
     });
 
     $("table thead").on("click", "tr", function () {
       const isCheckAll = $(this).find("th input[type=checkbox]").is(':checked');
       if (isCheckAll) {
-        $("table tbody tr").selectRow()
+        $("table tbody tr").addSelectCheckbox()
       } else {
-        clickRow = []
-        $("table tbody tr").removeSelectRow()
+        $("table tbody tr").removeSelectCheckbox()
       }
       $("table tbody").find("tr td input[type=checkbox]").prop("checked", isCheckAll);
+
       checkButtonClick["edit"].map(function (item) {
-        $("table tbody").find(`tr#${item.id}`).selectRow()
-        $("table tbody").find(`tr#${item.id} td input[type=checkbox]`).prop("checked", true);
+        $("table tbody").find(`tr#${item.id}`).addClass("pending-edit")
       })
       checkButtonClick["remove"].map(function (id) {
-        $("table tbody").find(`tr#${id}`).addClass("pending-action")
+        $("table tbody").find(`tr#${id}`).addClass("pending-delete")
         $("table tbody").find(`tr#${id} td input[type=checkbox]`).prop("checked", true);
       })
     })
