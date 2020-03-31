@@ -486,18 +486,20 @@
 
       let values = []
       let count = 0;
-      $.each($("table tbody tr"), function (item) {
-        $(this).removeSelectRow()
-      })
-
-      $(this).selectRow("row-selected")
-
       $(this).find("td").each(function () {
         values[count] = $(this).text();
         count++;
       });
 
-      let $tgt = $(e.target);
+      $.each($("table tbody tr"), function (item) {
+        if($(this).attr('id') !== values[1]) {
+          $(this).removeSelectRow()
+        }
+      })
+
+      $(this).toggleClass("row-selected")
+
+      // let $tgt = $(e.target);
 
       const tds = $("table tbody tr").find("input[type=checkbox]:checked")
       tds.parent().parent().addSelectCheckbox()
@@ -506,8 +508,14 @@
       //   resetForm()
       // }
       //  if (!$tgt.is('label') || !$tgt.is(':checkbox')) {
-      bindDataForm(values);
+      // bindDataForm(values);
       // }
+
+      if($(".row-selected").length === 0) {
+        resetForm()
+      } else {
+        bindDataForm(values)
+      }
 
     });
 
