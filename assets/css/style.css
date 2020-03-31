@@ -55,14 +55,14 @@ table.table-bordered.table-striped.custom-table .row-selected-all {
   font-style: italic;
 }
 
-.pending-delete {
+.table.table-bordered.table-striped.custom-table .pending-delete {
   opacity: 0.3;
   cursor: not-allowed;
   pointer-events: none;
   background: #b3d4ea;
 }
 
-.pending-edit {
+.table.table-bordered.table-striped.custom-table .pending-edit {
   opacity: 0.8;
   background: #b3d4ea;
 } 

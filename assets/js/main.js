@@ -415,6 +415,7 @@
     })
 
     $("#btn-delete").click(function (e) {
+      resetForm()
       const tds = $("table tbody tr").find("input[type=checkbox]:checked")
       tds.parent().parent().addClass('pending-delete')
       let ids = []
@@ -501,12 +502,12 @@
       const tds = $("table tbody tr").find("input[type=checkbox]:checked")
       tds.parent().parent().addSelectCheckbox()
 
-      if ($tgt.is('label') || $tgt.is(':checkbox')) {
-        resetForm()
-      }
-      else if (!$tgt.is('label') || !$tgt.is(':checkbox')) {
-        bindDataForm(values);
-      }
+      // if ($tgt.is('label') || $tgt.is(':checkbox') || $(`table tbody tr#${values[1]}`).find("input[type=checkbox]").is(":checked")) {
+      //   resetForm()
+      // }
+      //  if (!$tgt.is('label') || !$tgt.is(':checkbox')) {
+      bindDataForm(values);
+      // }
 
     });
 
