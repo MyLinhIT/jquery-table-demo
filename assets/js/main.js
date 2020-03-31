@@ -414,11 +414,12 @@
     })
 
     $("#btn-delete").click(function (e) {
-      resetForm()
       const tds = $("table tbody tr").find("input[type=checkbox]:checked")
       tds.parent().parent().addClass('pending-delete')
       let ids = []
-
+      if(tds.length > 0) {
+          resetForm()
+      }
       $.each(tds, function () {
         ids.push($(this).closest('tr').attr('id'));
       })
