@@ -15,7 +15,7 @@
 
     let sortASCTable = {}
 
-    let clickRow = []
+    let idRowSelect = -1
 
     $.fn.handleLoadingPagination = function () {
       $(".wrap-pagination").empty()
@@ -124,6 +124,8 @@
       checkButtonClick["edit"].map(function (item) {
         $("table tbody").find(`tr#${item.id}`).addClass("pending-edit")
       })
+
+      $(`table tbody tr#${idRowSelect}`).selectRow()
     }
 
     $.fn.removeTable = function () {
@@ -417,12 +419,14 @@
       const tds = $("table tbody tr").find("input[type=checkbox]:checked")
       tds.parent().parent().addClass('pending-delete')
       let ids = []
-      if(tds.length > 0) {
-          resetForm()
-      }
+
       $.each(tds, function () {
         ids.push($(this).closest('tr').attr('id'));
       })
+
+      if(ids.includes(idRowSelect)) {
+        resetForm()
+      }
 
       checkButtonClick["edit"] = checkButtonClick["edit"].filter(function (item) {
         if (!ids.includes(item.id)) {
@@ -510,7 +514,7 @@
       //  if (!$tgt.is('label') || !$tgt.is(':checkbox')) {
       // bindDataForm(values);
       // }
-
+      idRowSelect = $(".row-selected").attr('id')
       if($(".row-selected").length === 0) {
         resetForm()
       } else {
