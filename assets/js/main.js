@@ -246,7 +246,6 @@
 
     $.fn.addSelectCheckbox = function () {
       this.addClass("row-selected-all")
-      resetForm()
     }
 
     $.fn.removeSelectCheckbox = function () {
