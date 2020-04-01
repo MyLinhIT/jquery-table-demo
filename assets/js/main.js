@@ -16,6 +16,7 @@
     let sortASCTable = {}
 
     let idRowSelect = -1
+    let arrCheckBoxChecked = []
 
     $.fn.handleLoadingPagination = function () {
       $(".wrap-pagination").empty()
@@ -126,6 +127,11 @@
       })
 
       $(`table tbody tr#${idRowSelect}`).selectRow()
+
+      arrCheckBoxChecked.map(function (id) {
+        $("table tbody").find(`tr#${id}`).addSelectCheckbox()
+        $("table tbody").find(`tr#${id} td input[type=checkbox]`).prop("checked", true);
+      })
     }
 
     $.fn.removeTable = function () {
@@ -507,7 +513,10 @@
 
       const tds = $("table tbody tr").find("input[type=checkbox]:checked")
       tds.parent().parent().addSelectCheckbox()
-
+      // arrCheckBoxChecked = []
+      $.each(tds, function(index, item) {
+        arrCheckBoxChecked.push($(item).closest("tr").attr('id'))
+      })
       // if ($tgt.is('label') || $tgt.is(':checkbox') || $(`table tbody tr#${values[1]}`).find("input[type=checkbox]").is(":checked")) {
       //   resetForm()
       // }
