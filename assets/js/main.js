@@ -549,5 +549,34 @@
         $("table tbody").find(`tr#${id} td input[type=checkbox]`).prop("checked", true);
       })
     })
+
+    // resizable
+    let pressed = false;
+    let start = undefined;
+    let startX, startWidth;
+
+    $("table thead").on('mousedown', 'th.resizable', function(e) {
+        console.log('object');
+        start = $(this);
+        pressed = true;
+        startX = e.pageX;
+        startWidth = $(this).width()
+        $(start).addClass("resizing");
+        $(start).addClass("noSelect");
+    });
+
+    $(document).mousemove(function(e) {
+        if (pressed) {
+            $(start).width(startWidth + (e.pageX - startX));
+        }
+    });
+
+    $(document).mouseup(function() {
+        if (pressed) {
+            $(start).removeClass("nSelect");
+            pressed = false;
+        }
+    });
+
   }
 }(jQuery));
