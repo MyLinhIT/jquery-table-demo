@@ -1,6 +1,7 @@
 (function ($) {
   $.fn.tablePlugin = function () {
-    let $div = $('.table-jquery')
+    let $div = $(this)
+    $("body>div").append(`<div class="wraper-loading"><div class="loader"></div></div>`)
     $div.append(`<table class="table table-bordered table-striped custom-table"><thead><tr></tr></thead><tbody></tbody></table>`)
     $div.append(`<div class="wrap-pagination"></div>`)
     let $table = $('table tbody')
@@ -88,8 +89,7 @@
       if (!!dataSource.data[0]["profile_image"]) {
         delete dataSource.data[0]["profile_image"]
       }
-      $(".loader").css("display", "none");
-      $(".custom-row").css("display", "flex");
+      $(".wraper-loading").css("display", "none");
       $table.empty();
       let keys = Object.keys(dataSource.data[0]);
       const offset = (current_page - 1) * dataSource.pagination.pageSize
@@ -100,9 +100,8 @@
         return item
       })
 
-
       $.each(dataFormat, function (index, item) {
-        let tr = `<tr id=${item.id === "N/A" ? "" : item.id} ${item.id === "N/A" ? "add-row" : ""}>`
+        let tr = `<tr id=${item.id}>`
         tr += `<td><input class="form-check-input" type="checkbox" value="" id="${"check-row-" + item.id}"></input><label for=${"check-row-" + item.id}></label></td>`
         $.each(keys, function (indexHeader, key) {
           tr += `<td class="${key + ' ' + item.id}">${item[key]}</td>`;
@@ -117,6 +116,12 @@
         $("table tbody tr").removeSelectCheckbox()
       }
       $("table tbody").find("tr td input[type=checkbox]").prop("checked", isCheckAll);
+
+      checkButtonClick["create"].map(function (item) {
+        $("table tbody").find(`tr#${item.id}`).addClass("add-row")
+        $("table tbody").find(`#check-row-${item.id}`).css("display", "none")
+        $("table tbody").find(`label[for='check-row-${item.id}`).css("display", "none")
+      })
 
       checkButtonClick["remove"].map(function (id) {
         $("table tbody").find(`tr#${id}`).addClass("pending-delete")
@@ -141,8 +146,6 @@
       $(".valid-age").text("")
       $(".valid-name").text("")
       $(".valid-salary").text("")
-      $(".loader").css("display", "block");
-      $(".custom-row").css("display", "none");
     }
 
     resetForm = function () {
@@ -154,48 +157,57 @@
 
     validate = function () {
       let valName = $("#input-name").val().trim()
-      const name_regex = /^([a-zA-Z'-,.\s]{1,100})$/g
-
+      const name_regex = /[0-9]|-|\+|=|_|\)|\(|\*|&|\^|%|\$|#|@|!|~|:|;|\}|]|{|\/|\?|\.|>|,|</g
       if (valName === "") {
         $(".valid-name").text("Employee name can't be empty.")
+        $("#input-name").addClass('form-control-error')
         $("#input-name").focus()
         return false;
-      } else if (!valName.match(name_regex)) {
+      } else if (valName.match(name_regex)) {
         $(".valid-name").text("Please enter the right format.")
+        $("#input-name").addClass('form-control-error')
         $("#input-name").focus()
         return false;
       }
       else {
+        $("#input-name").removeClass('form-control-error')
         $(".valid-name").text("")
       }
 
       let valSalary = $("#input-salary").val().replace(/,/g, '').replace(/[a-zA-Z]/g, '')
       if (valSalary === "") {
         $(".valid-salary").text("Employee salary can't be empty.")
+        $("#input-salary").addClass('form-control-error')
         $("#input-salary").focus()
         return false;
       } else if (valSalary < 0) {
         $(".valid-salary").text("Employee salary must be 0 and above.")
+        $("#input-salary").addClass('form-control-error')
         $("#input-salary").focus()
         return false;
       } else {
+        $("#input-salary").removeClass('form-control-error')
         $(".valid-salary").text("");
       }
 
       let valAge = $("#input-age").val().replace(/e/g, '')
       if (valAge === "") {
         $(".valid-age").text("Employee age can't be empty.")
+        $("#input-age").addClass('form-control-error')
         $("#input-age").focus()
         return false;
       } else if (valAge < 20) {
         $(".valid-age").text("Employee age must be 20 and above.")
+        $("#input-age").addClass('form-control-error')
         $("#input-age").focus()
         return false;
       } else if (valAge > 65) {
-        $(".valid-age").text("Employee age must be 60 and under.")
+        $(".valid-age").text("Employee age must be 65 and under.")
+        $("#input-age").addClass('form-control-error')
         $("#input-age").focus()
         return false;
       } else {
+        $("#input-age").removeClass('form-control-error')
         $(".valid-age").text("");
       }
 
@@ -227,8 +239,97 @@
       $(this).val($(this).val().replace(/,/g, '').trim().replace(/^0/, '').replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'))
     })
 
+    $('input').on('input', function () {
+      setTimeout(function () {
+        let id = $("#input-id").val()
+        if (id) {
+          const idsRecordAddRow = checkButtonClick["create"].map(function (item) {
+            return item.id
+          })
+          if (idsRecordAddRow.includes(id)) {
+            if (!!validate()) {
+              let employee_name = $("#input-name").val()
+              let employee_age = $("#input-age").val()
+              let employee_salary = $("#input-salary").val()
+              employee_name = formatEmployee(employee_name);
+
+              $(`.employee_name.${id}`).text(employee_name)
+              $(`.employee_age.${id}`).text(employee_age)
+              $(`.employee_salary.${id}`).text(employee_salary.replace(/[a-zA-Z]$/g, ''))
+
+              const record = { id, employee_name, employee_salary: employee_salary.replace(/,/g, '').replace(/[a-zA-Z]$/g, ''), employee_age }
+              dataSource.data = dataSource.data.map(function (item) {
+                if (item.id === id) {
+                  return record
+                }
+                else {
+                  return item
+                }
+              })
+              checkButtonClick["create"] = checkButtonClick["create"].map(function (item) {
+                if (item.id === id) {
+                  return record
+                } else {
+                  return item
+                }
+              })
+            }
+          }
+          else {
+            if (!!validate()) {
+              $(`table tbody tr#${id}`).addClass("pending-edit")
+              let employee_name = $("#input-name").val()
+              let employee_age = $("#input-age").val()
+              let employee_salary = $("#input-salary").val()
+              employee_name = formatEmployee(employee_name);
+
+              $(`.employee_name.${id}`).text(employee_name)
+              $(`.employee_age.${id}`).text(employee_age)
+              $(`.employee_salary.${id}`).text(employee_salary.replace(/[a-zA-Z]$/g, ''))
+
+              const record = { id, employee_name, employee_salary: employee_salary.replace(/,/g, '').replace(/[a-zA-Z]$/g, ''), employee_age }
+              dataSource.data = dataSource.data.map(function (item) {
+                if (item.id === id) {
+                  return record
+                }
+                else {
+                  return item
+                }
+              })
+              if (checkButtonClick["edit"].length === 0) {
+                checkButtonClick["edit"].push(record)
+              }
+              let checkRecord = false
+
+              checkButtonClick["edit"] = checkButtonClick["edit"].map(function (item) {
+                if (item.id === id) {
+                  checkRecord = true
+                  return record
+                } else {
+                  return item
+                }
+              })
+              if (!checkRecord) {
+                checkButtonClick["edit"].push(record)
+              }
+            }
+          }
+        }
+      }, 250)
+    })
+
     bindDataForm = function (data) {
       let inputs = $(".form-group input.form-control")
+
+      const idsRecordAddRow = checkButtonClick["create"].map(function (item) {
+        return item.id
+      })
+
+      if (idsRecordAddRow.includes(data[1])) {
+        $("#input-id").css("color", "#eee")
+      } else {
+        $("#input-id").css("color", "#000")
+      }
       $.each(inputs, function (index, input) {
         input.value = data[index + 1]
       })
@@ -362,13 +463,18 @@
         let employee_salary = $("#input-salary").val().replace(/[a-zA-Z]$/g, '')
         employee_name = formatEmployee(employee_name);
 
-        let tr = "<tr id='add-row'>"
+        const idEmployee = +dataSource.data[dataSource.data.length - 1].id + 1
+
+        let tr = `<tr id="${idEmployee}" class="add-row">`
         tr += `<td></td>`
-        tr += "<td>N/A</td><td>" + employee_name + "</td><td>" + employee_salary + "</td><td>" + employee_age + "</td>";
+        tr += `<td id="id ${idEmployee}">${idEmployee}</td>
+              <td class="employee_name ${idEmployee}">${employee_name}</td>
+              <td class="employee_salary ${idEmployee}">${employee_salary}</td>
+              <td class="employee_age ${idEmployee}">${employee_age}</td>`
         tr += "</tr>"
         $table.prepend(tr)
         const data = {
-          id: "N/A",
+          id: idEmployee.toString(),
           employee_name,
           employee_salary: employee_salary.replace(/,/g, ''),
           employee_age
@@ -380,71 +486,28 @@
       }
     })
 
-    $("#btn-edit").click(function (e) {
-      if (!!validate()) {
-        let id = $("#input-id").val()
-        $(`table tbody tr#${id}`).addClass("pending-edit")
-        let employee_name = $("#input-name").val()
-        let employee_age = $("#input-age").val()
-        let employee_salary = $("#input-salary").val()
-        employee_name = formatEmployee(employee_name);
-
-        $(`.employee_name.${id}`).text(employee_name)
-        $(`.employee_age.${id}`).text(employee_age)
-        $(`.employee_salary.${id}`).text(employee_salary.replace(/[a-zA-Z]$/g, ''))
-
-        const record = { id, employee_name, employee_salary: employee_salary.replace(/,/g, '').replace(/[a-zA-Z]$/g, ''), employee_age }
-        dataSource.data = dataSource.data.map(function (item) {
-          if (item.id === id) {
-            return record
-          }
-          else {
-            return item
-          }
-        })
-        if (checkButtonClick["edit"].length === 0) {
-          checkButtonClick["edit"].push(record)
-        }
-        let checkRecord = false
-
-        checkButtonClick["edit"] = checkButtonClick["edit"].map(function (item) {
-          if (item.id === id) {
-            checkRecord = true
-            return record
-          } else {
-            return item
-          }
-        })
-        if (!checkRecord) {
-          checkButtonClick["edit"].push(record)
-        }
-      }
-    })
-
     $("#btn-delete").click(function (e) {
       const tds = $("table tbody tr").find("input[type=checkbox]:checked")
       tds.parent().parent().addClass('pending-delete')
-      let ids = []
 
-      $.each(tds, function () {
-        ids.push($(this).closest('tr').attr('id'));
+      checkButtonClick["remove"] = []
+
+      const ids = arrCheckBoxChecked.filter(function (item, index) {
+        if (arrCheckBoxChecked.indexOf(item) === index) {
+          return item
+        }
       })
 
-      if(ids.includes(idRowSelect)) {
+      if (ids.includes(idRowSelect)) {
         resetForm()
       }
-
       checkButtonClick["edit"] = checkButtonClick["edit"].filter(function (item) {
         if (!ids.includes(item.id)) {
           return item
         }
       });
 
-      dataSource.data.map(function (item) {
-        if (ids.includes(item.id)) {
-          checkButtonClick["remove"].push(item.id);
-        }
-      });
+      checkButtonClick["remove"] = ids
     })
 
     handleSaveApi = function (type, fn) {
@@ -452,29 +515,34 @@
         .then(function () {
           alert(`${type.charAt(0).toUpperCase() + type.slice(1)} successfully.`)
         })
-        .catch(function () {
+        .catch(function (err) {
           alert("An error occurred, please try again.")
         })
         .finally(function () {
           checkButtonClick[type] = []
+          $.fn.removeTable()
           loadData()
         })
     }
 
     $("#btn-save").click(function () {
-      $.fn.removeTable()
-      clickRow = []
-      loadData()
-      if (checkButtonClick["remove"].length > 0) {
-        handleSaveApi("remove", $.fn.removeRecord)
-      }
-
-      if (checkButtonClick["create"].length > 0) {
-        handleSaveApi("create", $.fn.create)
-      }
-
-      if (checkButtonClick["edit"].length > 0) {
-        handleSaveApi("edit", $.fn.edit)
+      if (checkButtonClick["remove"].length > 0 || checkButtonClick["create"].length > 0 || checkButtonClick["edit"].length > 0) {
+        $(".wraper-loading").css("display", "block");
+        clickRow = []
+        loadData()
+        if (checkButtonClick["remove"].length > 0) {
+          handleSaveApi("remove", $.fn.removeRecord)
+        }
+        if (checkButtonClick["create"].length > 0) {
+          checkButtonClick["create"].map(function (item) {
+            delete item.id
+            return item
+          })
+          handleSaveApi("create", $.fn.create)
+        }
+        if (checkButtonClick["edit"].length > 0) {
+          handleSaveApi("edit", $.fn.edit)
+        }
       }
     })
 
@@ -482,7 +550,7 @@
     $("table tbody").on("click", "tr", function (e) {
 
       // Check all checkbox are checked or not
-      if (($("table tbody tr").find("input[type=checkbox]").length > 1 === 1 && current_page === 1) || $("table tbody tr").find("input[type=checkbox]").length > 1 && $("table tbody tr").find("input[type=checkbox]").length === $("table tbody tr").find("input[type=checkbox]:checked").length) {
+      if (dataSource.data.length === $("table tbody tr").find("input[type=checkbox]:checked").length) {
         $("table thead").find("tr th input[type=checkbox]").prop("checked", true);
         $.each($("table tbody tr"), function () {
           $(this).addSelectCheckbox()
@@ -502,31 +570,24 @@
       });
 
       $.each($("table tbody tr"), function (item) {
-        if($(this).attr('id') !== values[1]) {
+        if ($(this).attr('id') !== values[1]) {
           $(this).removeSelectRow()
         }
       })
 
       $(this).toggleClass("row-selected")
 
-      // let $tgt = $(e.target);
-
       const tds = $("table tbody tr").find("input[type=checkbox]:checked")
       tds.parent().parent().addSelectCheckbox()
-      // arrCheckBoxChecked = []
-      $.each(tds, function(index, item) {
+      $.each(tds, function (index, item) {
         arrCheckBoxChecked.push($(item).closest("tr").attr('id'))
       })
-      // if ($tgt.is('label') || $tgt.is(':checkbox') || $(`table tbody tr#${values[1]}`).find("input[type=checkbox]").is(":checked")) {
-      //   resetForm()
-      // }
-      //  if (!$tgt.is('label') || !$tgt.is(':checkbox')) {
-      // bindDataForm(values);
-      // }
+
       idRowSelect = $(".row-selected").attr('id')
-      if($(".row-selected").length === 0) {
+      if ($(".row-selected").length === 0) {
         resetForm()
       } else {
+
         bindDataForm(values)
       }
 
@@ -537,9 +598,14 @@
       if (isCheckAll) {
         $("table tbody tr").addSelectCheckbox()
       } else {
+        arrCheckBoxChecked = []
         $("table tbody tr").removeSelectCheckbox()
       }
       $("table tbody").find("tr td input[type=checkbox]").prop("checked", isCheckAll);
+
+      checkButtonClick["create"].map(function (item) {
+        $("table tbody").find(`tr#${item.id}`).addClass("add-row")
+      })
 
       checkButtonClick["edit"].map(function (item) {
         $("table tbody").find(`tr#${item.id}`).addClass("pending-edit")
@@ -555,27 +621,26 @@
     let start = undefined;
     let startX, startWidth;
 
-    $("table thead").on('mousedown', 'th.resizable', function(e) {
-        console.log('object');
-        start = $(this);
-        pressed = true;
-        startX = e.pageX;
-        startWidth = $(this).width()
-        $(start).addClass("resizing");
-        $(start).addClass("noSelect");
+    $("table thead").on('mousedown', 'th.resizable', function (e) {
+      start = $(this);
+      pressed = true;
+      startX = e.pageX;
+      startWidth = $(this).width()
+      $(start).addClass("resizing");
+      $(start).addClass("noSelect");
     });
 
-    $(document).mousemove(function(e) {
-        if (pressed) {
-            $(start).width(startWidth + (e.pageX - startX));
-        }
+    $(document).mousemove(function (e) {
+      if (pressed) {
+        $(start).width(startWidth + (e.pageX - startX));
+      }
     });
 
-    $(document).mouseup(function() {
-        if (pressed) {
-            $(start).removeClass("nSelect");
-            pressed = false;
-        }
+    $(document).mouseup(function () {
+      if (pressed) {
+        $(start).removeClass("nSelect");
+        pressed = false;
+      }
     });
 
   }

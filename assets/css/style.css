@@ -6,6 +6,7 @@ html body {
 
 .custom-container {
   margin-top: 3rem;
+  position: relative;
 }
 
 .custom-row {
@@ -13,7 +14,6 @@ html body {
   flex-direction: column;
   width: 100%;
   padding: 0 15px;
-  display: none;
 }
 
 .custom-table thead {
@@ -29,7 +29,11 @@ html body {
 }
 
 .row-btn button {
-  width: 23%;
+  width: 31%;
+}
+
+#input-id {
+  cursor: not-allowed;
 }
 
 table.table-bordered.table-striped.custom-table .row-selected {
@@ -41,42 +45,54 @@ table.table-bordered.table-striped.custom-table .row-selected-all.row-selected {
 table.table-bordered.table-striped.custom-table .row-selected-all {
   background: #7eb2d4;
 }
-#add-row {
-  opacity: 0.4;
-  cursor: not-allowed;
-  color: #fff;
-  background: #398439;
-  pointer-events: none;
-}
 
 .valid {
   font-size: 12px;
   color: #ff0000;
   font-style: italic;
 }
-
+table.table-bordered.table-striped.custom-table .add-row  {
+  background: #8aa1b3;
+}
+.add-row td:nth-child(2) {
+  opacity: 0;
+}
+.form-control.form-control-error, .form-control:focus.form-control-error {
+  border-color: red;
+}
 .table.table-bordered.table-striped.custom-table .pending-delete {
   opacity: 0.3;
-  cursor: not-allowed;
   pointer-events: none;
   background: #b3d4ea;
+}
+.table.table-bordered.table-striped.custom-table tbody tr:hover {
+  cursor: pointer;
+  background: #e2eaf0;
 }
 
 .table.table-bordered.table-striped.custom-table .pending-edit {
   opacity: 0.8;
   background: #b3d4ea;
 } 
-.loader {
+
+ .wraper-loading {
   position: absolute;
-  left: 50%;
-  top: 20%;
-  border: 3px solid #f3f3f3;
+  left: 0;
+  top: -30px;
+  height: 100vh;
+  width: 100%;
+  background: silver;
+  opacity: .5;
+  display: block;
+}
+ .loader {
+  border: 3px solid #fff;
   border-radius: 50%;
   border-top: 3px solid #3498db;
-  margin: 10% auto 0 auto;
+  margin: 50% auto 0 auto;
   width: 60px;
   height: 60px;
-  display: block;
+
   -webkit-animation: spin 2s linear infinite;
   /* Safari */
   animation: spin 2s linear infinite;
@@ -239,5 +255,9 @@ th:first-child {
   }
   .custom-row .col:last-child {
     width: 35%;
+  }
+  
+  .wraper-loading .loader {
+    margin-top: 20%;
   }
 }

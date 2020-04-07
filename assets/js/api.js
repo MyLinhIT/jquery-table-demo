@@ -1,5 +1,4 @@
 $(document).ready(function() {
-
     $.fn.get = function() {
         $.ajax({
             url: dataSource.api,
@@ -47,3 +46,5 @@ $(document).ready(function() {
         })
     }
 })
+
+
