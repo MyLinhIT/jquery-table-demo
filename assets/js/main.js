@@ -96,7 +96,7 @@
       const limit = dataSource.pagination.pageSize + offset
 
       const dataFormat = dataSource.data.slice(offset, limit).map(function (item) {
-        item.employee_salary = item.employee_salary.trim().replace(/^0/, '').replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
+        item.employee_salary = item.employee_salary.toString().trim().replace(/^0/, '').replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
         return item
       })
 
